@@ -16,9 +16,9 @@
     "rules": {
     }
   },
-  "main": "src/commands/parse.js",
+  "main": "dist/commands/parse.js",
   "bin": {
-    "node-tnef": "src/bin/node-tnef.js"
+    "node-tnef": "dist/bin/node-tnef.js"
   },
   "scripts": {
     "prebuild": "npm run clean",
