@@ -25,6 +25,7 @@
     "build": "babel src --out-dir dist",
     "clean": "rimraf dist",
     "prepublish": "npm run build",
+    "prepare": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
