@@ -60,6 +60,7 @@ const ATTATTACHTITLE = 0x8010 // Attachment File Name
 const ATTATTACHMETAFILE = 0x8011 // Attachment Meta File
 const ATTATTACHCREATEDATE = 0x8012 // Attachment Creation Date
 const ATTATTACHMODIFYDATE = 0x8013 // Attachment Modification Date
+const ATTATTACHCONTENTID = 0x3712 // Attachment Content Id
 const ATTDATEMODIFY = 0x8020 // Date Modified
 const ATTATTACHTRANSPORTFILENAME = 0x9001 // Attachment Transport File Name
 const ATTATTACHRENDDATA = 0x9002 // Attachment Rendering Data
@@ -145,6 +146,13 @@ var addAttr = ((obj, attachment) => {
         case ATTATTACHDATA:
             attachment.Data = obj.Data
             break;
+        case ATTATTACHMENT:
+            let attributes = mapi.decodeMapi(obj.Data);
+            if(attributes) {
+                let cid = attributes.find(itm => itm.Name === ATTATTACHCONTENTID);
+                if(cid)
+                    attachment.Cid = convertString.bytesToString(cid.Data).replaceAll('\x00', '');
+            }
     }
 })
 
