@@ -231,16 +231,19 @@ var Decode = ((data) => {
             // add the attachments
             addAttr(obj, attachment)
         } else if (obj.Name === Attribute.ATTMAPIPROPS) {
-            tnef.Attributes = mapi.decodeMapi(obj.Data)
-            if (tnef.Attributes) {
+            var attributes = mapi.decodeMapi(obj.Data)
+            if (attributes) {
                 // get the body property if it exists
-                for (var attr of tnef.Attributes) {
+                for (var attr of attributes) {
                     switch (attr.Name) {
                         case mapi.MAPITypes.MAPIBody:
-                            tnef.Body = attr.Data
+                            tnef.Body = convertString.bytesToString(attr.Data).replaceAll('\x00', '')
                             break;
                         case mapi.MAPITypes.MAPIBodyHTML:
-                            tnef.BodyHTML = attr.Data
+                            tnef.BodyHTML = convertString.bytesToString(attr.Data).replaceAll('\x00', '')
+                            break;
+                        case mapi.MAPITypes.MAPIBodyPreview:
+                            tnef.BodyPreview = convertString.bytesToString(attr.Data).replaceAll('\x00', '')
                     }
                 }
             }

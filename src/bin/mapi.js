@@ -551,6 +551,7 @@ const MAPITypes = {
     MAPIYpos: 0x3F06,
     MAPIControlID: 0x3F07,
     MAPIInitialDetailsPane: 0x3F08,
+    MAPIBodyPreview: 0x3FD9,
     MAPIIdSecureMin: 0x67F0,
     MAPIIdSecureMax: 0x67FF
 }
