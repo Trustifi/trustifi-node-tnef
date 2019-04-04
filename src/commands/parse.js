@@ -158,7 +158,10 @@ var addAttr = ((obj, attachment) => {
                             attachment.ContentType = convertString.bytesToString(att.Data).replaceAll('\x00', '')
                             break;
                         case mapi.MAPITypes.MAPIAttachLongFilename:
-                            attachment.FileName = convertString.bytesToString(att.Data).replaceAll('\x00', '')
+                            attachment.LongFilename = convertString.bytesToString(att.Data).replaceAll('\x00', '')
+                            break;
+                        case mapi.MAPITypes.MAPIAttachDataObj:
+                            attachment.Content = att.Data
                     }
                 })
             }
