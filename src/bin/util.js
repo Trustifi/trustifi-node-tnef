@@ -6,11 +6,11 @@ String.prototype.replaceAll = function (search, replacement) {
 // Convert the byte array to an int value
 var byteArrayToInt = ((bytes) => {
     var num = 0
-    var n = 0
- 
-    for(var b in bytes) {
-        num += (parseInt(bytes[b]) << n)
-        n += 8
+    var n = 1
+
+    for (var b in bytes) {
+        num += parseInt(bytes[b]) * n
+        n *= 256
     }
 
     return num

@@ -276,8 +276,14 @@ var decodeTNEFObject = ((data) => {
     offset += 4
 
     // data
-    object.Data = utils.processBytes(data, offset, attLength)
-    offset += attLength
+    if(data.length > offset+attLength) {
+        object.Data = utils.processBytes(data, offset, attLength)
+        offset += attLength
+    }
+    else {
+        object.Data = []
+    }
+
     offset += 2
 
     // length
