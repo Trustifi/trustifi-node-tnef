@@ -125,6 +125,10 @@ export function parse(filePath, callback) {
 
 export function parseBuffer(data, callback) {
     var arr = [...data]
+
+    if(callback)
+        return callback(true, Decode(arr))
+
     return Decode(arr)
 }
 
