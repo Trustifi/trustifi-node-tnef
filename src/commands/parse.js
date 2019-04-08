@@ -144,8 +144,7 @@ function parseOptions(argv) {
 var addAttr = ((obj, attachment) => {
     switch (obj.Name) {
         case Attribute.ATTATTACHTITLE:
-            var byteString = convertString.bytesToString(obj.Data)
-            attachment.Title = byteString.replaceAll('\x00', '')
+            attachment.Title = convertString.bytesToString(obj.Data).replaceAll('\x00', '').trim()
             break;
         case Attribute.ATTATTACHDATA:
             attachment.Data = obj.Data
@@ -163,6 +162,9 @@ var addAttr = ((obj, attachment) => {
                             break;
                         case mapi.MAPITypes.MAPIAttachLongFilename:
                             attachment.LongFilename = convertString.bytesToString(att.Data).replaceAll('\x00', '')
+                            break;
+                        case mapi.MAPITypes.MAPIAttachExtension:
+                            attachment.Ext = convertString.bytesToString(att.Data).replaceAll('\x00', '')
                             break;
                         case mapi.MAPITypes.MAPIAttachDataObj:
                             attachment.Content = att.Data
