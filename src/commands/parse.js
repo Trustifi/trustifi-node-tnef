@@ -243,13 +243,13 @@ var Decode = ((data) => {
                 for (var attr of attributes) {
                     switch (attr.Name) {
                         case mapi.MAPITypes.MAPIBody:
-                            tnef.Body = convertString.bytesToString(attr.Data).replaceAll('\x00', '')
+                            tnef.Body = attr.Data
                             break;
                         case mapi.MAPITypes.MAPIBodyHTML:
-                            tnef.BodyHTML = convertString.bytesToString(attr.Data).replaceAll('\x00', '')
+                            tnef.BodyHTML = attr.Data
                             break;
                         case mapi.MAPITypes.MAPIBodyPreview:
-                            tnef.BodyPreview = convertString.bytesToString(attr.Data).replaceAll('\x00', '')
+                            tnef.BodyPreview = attr.Data
                     }
                 }
             }
