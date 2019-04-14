@@ -250,6 +250,9 @@ var Decode = ((data) => {
                             break;
                         case mapi.MAPITypes.MAPIBodyPreview:
                             tnef.BodyPreview = attr.Data
+                            break;
+                        case mapi.MAPITypes.MAPIRtfCompressed:
+                            tnef.RtfCompressed = attr.Data
                     }
                 }
             }
