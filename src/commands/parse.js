@@ -236,6 +236,8 @@ var Decode = ((data) => {
         } else if (obj.Level === lvlAttachment) {
             // add the attachments
             addAttr(obj, attachment)
+        } else if (obj.Name === Attribute.ATTSUBJECT) {
+            tnef.Subject = obj.Data;
         } else if (obj.Name === Attribute.ATTMAPIPROPS) {
             var attributes = mapi.decodeMapi(obj.Data)
             if (attributes) {
