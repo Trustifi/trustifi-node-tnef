@@ -168,9 +168,16 @@ var addAttr = ((obj, attachment) => {
                             break;
                         case mapi.MAPITypes.MAPIAttachDataObj:
                             attachment.Content = att.Data
+                            break;
+                        default:
+                            console.log('addAttr-attach: 0x'+att.Name.toString(16)+': '+ convertString.bytesToString(att.Data).replaceAll('\x00', ''));
                     }
                 })
             }
+            break;
+        default:
+            let attributes2 = mapi.decodeMapi(obj.Data) || [];
+            console.log('addAttr: 0x'+obj.Name.toString(16)+': '+attributes2.length+':'+attributes2.map(itm => '0x'+itm.Name.toString(16)).join(','))
     }
 })
 
@@ -213,12 +220,14 @@ var Decode = ((data) => {
     var tnef = {}
     tnef.Attachments = []
 
+    let mapiEntries = Object.entries(mapi.MAPITypes);
+
     // iterate through the data
     while (offset < data.length) {
         // get only the data within the range of offset and the array length
         var tempData = utils.processBytes(data, offset, data.length)
         // decode the TNEF objects
-        var obj = decodeTNEFObject(tempData)
+        let obj = decodeTNEFObject(tempData)
 
         if (!obj) {
             log.error('Did not get a TNEF object back, exit')
@@ -239,10 +248,10 @@ var Decode = ((data) => {
         } else if (obj.Name === Attribute.ATTSUBJECT) {
             tnef.Subject = obj.Data;
         } else if (obj.Name === Attribute.ATTMAPIPROPS) {
-            var attributes = mapi.decodeMapi(obj.Data)
+            let attributes = mapi.decodeMapi(obj.Data)
             if (attributes) {
                 // get the body property if it exists
-                for (var attr of attributes) {
+                for (let attr of attributes) {
                     switch (attr.Name) {
                         case mapi.MAPITypes.MAPIBody:
                             tnef.Body = attr.Data
@@ -255,9 +264,37 @@ var Decode = ((data) => {
                             break;
                         case mapi.MAPITypes.MAPIRtfCompressed:
                             tnef.RtfCompressed = attr.Data
+                            break;
+                        default:
+                            let name = mapiEntries.find(itm => itm[1] === attr.Name);
+                            if(name) {
+                                let data = convertString.bytesToString(attr.Data).replaceAll('\x00', '').trim();
+                                if(data) {
+                                    tnef[name[0].replace('MAPI', '')] = data;
+                                }
+                            }
+
+                            let data = convertString.bytesToString(attr.Data).replaceAll('\x00', '');
+                            console.log('Decode-ATTMAPIPROPS: '+(name && name[0] || '')+': 0x'+attr.Name.toString(16)+': '+ data);
                     }
                 }
             }
+        }
+        else {
+            let name = mapiEntries.find(itm => itm[1] === obj.Name);
+            let data = convertString.bytesToString(obj.Data).replaceAll('\x00', '');
+            let attributes = mapi.decodeMapi(obj.Data) || [];
+            if (attributes.length) {
+                attributes = attributes.map(itm => {
+                    let name = mapiEntries.find(tt => tt[1] === itm.Name);
+                    return {
+                        Name: (name && name[0] || '')+': 0x'+itm.Name.toString(16),
+                        Data: convertString.bytesToString(itm.Data).replaceAll('\x00', '')
+                    }
+                });
+            }
+
+            console.log('Decode: '+(name && name[0] || '')+': 0x'+obj.Name.toString(16)+': '+attributes.length, {data, attributes});
         }
     }
 
