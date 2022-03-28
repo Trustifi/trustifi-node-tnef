@@ -1,43 +1,43 @@
 const utils = require('./util')
 
 // decode any MAPI message attributes
-var decodeMapi = ((data) => {
-    var attrs = []
-    var dataLen = data.length
-    var offset = 0
-    var numProperties = utils.processBytesToInteger(data, offset, 4)
+let decodeMapi = ((data) => {
+    let attrs = []
+    let dataLen = data.length
+    let offset = 0
+    let numProperties = utils.processBytesToInteger(data, offset, 4)
     offset += 4
 
-    for (var i = 0; i < numProperties; i++) {
+    for (let i = 0; i < numProperties; i++) {
         if (offset >= dataLen) {
             continue
         }
 
-        var attrType = utils.processBytesToInteger(data, offset, 2)
+        let attrType = utils.processBytesToInteger(data, offset, 2)
         offset += 2
 
-        var isMultiValue = (attrType & mvFlag) !== 0
+        let isMultiValue = (attrType & mvFlag) !== 0
         attrType &= ~mvFlag
 
-        var typeSize = getTypeSize(attrType)
+        let typeSize = getTypeSize(attrType)
         if (typeSize < 0) {
             isMultiValue = true
         }
 
-        var attrName = utils.processBytesToInteger(data, offset, 2)
+        let attrName = utils.processBytesToInteger(data, offset, 2)
         offset += 2
 
-        var guid = 0
+        let guid = 0
         if (attrName >= 0x8000 && attrName <= 0xFFFE) {
             guid = utils.processBytesToInteger(data, offset, 16)
             offset += 16
-            var kind = utils.processBytesToInteger(data, offset, 4)
+            let kind = utils.processBytesToInteger(data, offset, 4)
             offset += 4
 
             if (kind === 0) {
                 offset += 4
             } else if (kind === 1) {
-                var iidLen = utils.processBytesToInteger(data, offset, 4)
+                let iidLen = utils.processBytesToInteger(data, offset, 4)
                 offset += 4
                 offset += iidLen
                 offset += (-iidLen & 3)
@@ -45,7 +45,7 @@ var decodeMapi = ((data) => {
         }
 
         // handle multi-value properties
-        var valueCount = 1
+        let valueCount = 1
         if (isMultiValue) {
             valueCount = utils.processBytesToInteger(data, offset, 4)
             offset += 4
@@ -55,10 +55,10 @@ var decodeMapi = ((data) => {
             return
         }
 
-        var attrData = []
+        let attrData = []
 
-        for (var i = 0; i < valueCount; i++) {
-            var length = typeSize
+        for (let i = 0; i < valueCount; i++) {
+            let length = typeSize
             if (typeSize < 0) {
                 length = utils.processBytesToInteger(data, offset, 4)
                 offset += 4
@@ -77,7 +77,7 @@ var decodeMapi = ((data) => {
     return attrs
 })
 
-var getTypeSize = attrType => {
+let getTypeSize = attrType => {
     switch (attrType) {
         case szmapiShort:
         case szmapiBoolean:

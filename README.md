@@ -43,13 +43,13 @@ Object Properties:
 
 Examples:
 ```
-var tnef = require('node-tnef')
-var fs = require('fs')
-var path = require('path')
+let tnef = require('node-tnef')
+let fs = require('fs')
+let path = require('path')
 
 tnef.parse('/path/to/the/tnef/file', function (err, content) {
     // here you could write the data to a file for example
-    var firstAttachment = content[0]
+    let firstAttachment = content[0]
     fs.writeFile(path.join(aPath, firstAttachment.Title), new Buffer(firstAttachment.Data), (err) => {
         console.log('success!')
     })

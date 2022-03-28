@@ -1,14 +1,14 @@
 String.prototype.replaceAll = function (search, replacement) {
-    var target = this
+    let target = this
     return target.replace(new RegExp(search, 'g'), replacement)
 }
 
 // Convert the byte array to an int value
-var byteArrayToInt = ((bytes) => {
-    var num = 0
-    var n = 1
+let byteArrayToInt = ((bytes) => {
+    let num = 0
+    let n = 1
 
-    for (var b in bytes) {
+    for (let b in bytes) {
         num += parseInt(bytes[b]) * n
         n *= 256
     }
@@ -17,9 +17,9 @@ var byteArrayToInt = ((bytes) => {
 })
 
 // process bytes from array using offset and length
-var processBytes = ((data, offset, length) => {
-    var bytesToProcess = []
-    for(var i = offset; i < (offset + length); i++) {
+let processBytes = ((data, offset, length) => {
+    let bytesToProcess = []
+    for(let i = offset; i < (offset + length); i++) {
         bytesToProcess.push(data[i])
     }
 
@@ -27,10 +27,10 @@ var processBytes = ((data, offset, length) => {
 })
 
 // process bytes from an array to int value using offset and length
-var processBytesToInteger = ((data, offset, length) => {
-    var bytesToProcess = []
+let processBytesToInteger = ((data, offset, length) => {
+    let bytesToProcess = []
     
-    for(var i = offset; i < (offset + length); i++) {
+    for(let i = offset; i < (offset + length); i++) {
         bytesToProcess.push(data[i])
     }
 
