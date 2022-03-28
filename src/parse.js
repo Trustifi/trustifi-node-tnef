@@ -48,7 +48,7 @@ const Attribute = {
     ATTORIGNINALMESSAGECLASS: 0x9008 //Original Message Class
 }
 
-export function parseBuffer(data) {
+function parseBuffer(data) {
     let arr = [...data]
     return Decode(arr)
 }
@@ -198,3 +198,6 @@ let decodeTNEFObject = ((data) => {
     return object
 })
 
+module.exports = {
+    parseBuffer
+};
