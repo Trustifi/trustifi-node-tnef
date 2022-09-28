@@ -14,38 +14,38 @@ const lvlAttachment = 0x02
 // These can be used to figure out the type of attribute
 // an object is
 const Attribute = {
-    ATTOWNER: 0x0000, // Owner
-    ATTSENTFOR: 0x0001, // Sent For
-    ATTDELEGATE: 0x0002, // Delegate
-    ATTDATESTART: 0x0006, // Date Start
-    ATTDATEEND: 0x0007, // Date End
-    ATTAIDOWNER: 0x0008, // Owner Appointment ID
-    ATTREQUESTRES: 0x0009, // Response Requested
-    ATTFROM: 0x8000, // From
-    ATTSUBJECT: 0x8004, // Subject
-    ATTDATESENT: 0x8005, // Date Sent
-    ATTDATERECD: 0x8006, // Date Received
-    ATTMESSAGESTATUS: 0x8007, // Message Status
-    ATTMESSAGECLASS: 0x8008, // Message Class
-    ATTMESSAGEID: 0x8009, // Message ID
-    ATTPARENTID: 0x800a, // Parent ID
-    ATTCONVERSATIONID: 0x800b, // Conversation ID
-    ATTBODY: 0x800c, // Body
-    ATTPRIORITY: 0x800d, // Priority
-    ATTATTACHDATA: 0x800f, // Attachment Data
-    ATTATTACHTITLE: 0x8010, // Attachment File Name
-    ATTATTACHMETAFILE: 0x8011, // Attachment Meta File
-    ATTATTACHCREATEDATE: 0x8012, // Attachment Creation Date
-    ATTATTACHMODIFYDATE: 0x8013, // Attachment Modification Date
-    ATTDATEMODIFY: 0x8020, // Date Modified
-    ATTATTACHTRANSPORTFILENAME: 0x9001, // Attachment Transport File Name
-    ATTATTACHRENDDATA: 0x9002, // Attachment Rendering Data
-    ATTMAPIPROPS: 0x9003, // MAPI Properties
-    ATTRECIPTABLE: 0x9004, // Receipients
-    ATTATTACHMENT: 0x9005, // Attachment
-    ATTTNEFVERSION: 0x9006, // TNEF Version
-    ATTOEMCODEPAGE: 0x9007, // OEM Codepage
-    ATTORIGNINALMESSAGECLASS: 0x9008 //Original Message Class
+    OWNER: 0x0000, // Owner
+    SENTFOR: 0x0001, // Sent For
+    DELEGATE: 0x0002, // Delegate
+    DATESTART: 0x0006, // Date Start
+    DATEEND: 0x0007, // Date End
+    AIDOWNER: 0x0008, // Owner Appointment ID
+    REQUESTRES: 0x0009, // Response Requested
+    FROM: 0x8000, // From
+    SUBJECT: 0x8004, // Subject
+    DATESENT: 0x8005, // Date Sent
+    DATERECD: 0x8006, // Date Received
+    MESSAGESTATUS: 0x8007, // Message Status
+    MESSAGECLASS: 0x8008, // Message Class
+    MESSAGEID: 0x8009, // Message ID
+    PARENTID: 0x800a, // Parent ID
+    CONVERSATIONID: 0x800b, // Conversation ID
+    BODY: 0x800c, // Body
+    PRIORITY: 0x800d, // Priority
+    ATTACHDATA: 0x800f, // Attachment Data
+    ATTACHTITLE: 0x8010, // Attachment File Name
+    ATTACHMETAFILE: 0x8011, // Attachment Meta File
+    ATTACHCREATEDATE: 0x8012, // Attachment Creation Date
+    ATTACHMODIFYDATE: 0x8013, // Attachment Modification Date
+    DATEMODIFY: 0x8020, // Date Modified
+    ATTACHTRANSPORTFILENAME: 0x9001, // Attachment Transport File Name
+    ATTACHRENDDATA: 0x9002, // Attachment Rendering Data
+    MAPIPROPS: 0x9003, // MAPI Properties
+    RECIPTABLE: 0x9004, // Recipients
+    ATTACHMENT: 0x9005, // Attachment
+    TNEFVERSION: 0x9006, // TNEF Version
+    OEMCODEPAGE: 0x9007, // OEM Codepage
+    ORIGNINALMESSAGECLASS: 0x9008 //Original Message Class
 }
 
 function parseBuffer(data) {
@@ -54,15 +54,15 @@ function parseBuffer(data) {
 }
 
 // right now, adds just the attachment title and data
-let addAttr = ((obj, attachment) => {
+let addAttachmentAttr = ((obj, attachment) => {
     switch (obj.Name) {
-        case Attribute.ATTATTACHTITLE:
+        case Attribute.ATTACHTITLE:
             attachment.Title = convertString.bytesToString(obj.Data).replaceAll('\x00', '').trim()
             break;
-        case Attribute.ATTATTACHDATA:
+        case Attribute.ATTACHDATA:
             attachment.Data = obj.Data
             break;
-        case Attribute.ATTATTACHMENT:
+        case Attribute.ATTACHMENT:
             let attributes = mapi.decodeMapi(obj.Data);
             if(attributes) {
                 attributes.forEach(att => {
@@ -76,11 +76,24 @@ let addAttr = ((obj, attachment) => {
                         case mapi.MAPITypes.MAPIAttachLongFilename:
                             attachment.LongFilename = convertString.bytesToString(att.Data).replaceAll('\x00', '')
                             break;
+                        case mapi.MAPITypes.MAPIDisplayName:
+                            attachment.LongFilename = convertString.bytesToString(att.Data).replaceAll('\x00', '')
+                            break;
                         case mapi.MAPITypes.MAPIAttachExtension:
                             attachment.Ext = convertString.bytesToString(att.Data).replaceAll('\x00', '')
                             break;
                         case mapi.MAPITypes.MAPIAttachDataObj:
-                            attachment.Content = att.Data
+                            attachment.Content = att.Data;
+                            break;
+                        default:
+                            if (att.Data.length && att.Data.some(itm => itm)) {
+                                let attName = Object.entries(mapi.MAPITypes).find(itm => itm[1] === att.Name);
+                                attName = attName && attName[0] || 'mapi_0x' + att.Name.toString(16);
+                                let attValue = att.TypeSize > 0 && att.TypeSize < 8 ?
+                                    utils.byteArrayToInt(att.Data) :
+                                    convertString.bytesToString(att.Data).replaceAll('\x00', '');
+                                attachment[attName] = {data: att.Data, value: attValue};
+                            }
                     }
                 })
             }
@@ -124,40 +137,65 @@ let Decode = ((data) => {
         offset += obj.Length
 
         // append attributes and attachments
-        if (obj.Name === Attribute.ATTATTACHRENDDATA) {
+        if (obj.Name === Attribute.ATTACHRENDDATA) {
             // create an empty attachment object to prepare for population
             attachment = {}
             tnef.Attachments.push(attachment)
         } else if (obj.Level === lvlAttachment) {
             // add the attachments
-            addAttr(obj, attachment)
-        } else if (obj.Name === Attribute.ATTSUBJECT) {
-            tnef.Subject = obj.Data;
-        } else if (obj.Name === Attribute.ATTMAPIPROPS) {
-            let attributes = mapi.decodeMapi(obj.Data)
+            addAttachmentAttr(obj, attachment)
+        } else if (obj.Name === Attribute.SUBJECT) {
+            tnef.Subject = convertString.bytesToString(obj.Data).replaceAll('\x00', '');
+        } else if (obj.Name === Attribute.MAPIPROPS) {
+            let attributes = mapi.decodeMapi(obj.Data);
             if (attributes) {
                 // get the body property if it exists
                 for (let attr of attributes) {
                     switch (attr.Name) {
                         case mapi.MAPITypes.MAPIBody:
-                            tnef.Body = attr.Data
+                            tnef.Body = convertString.bytesToString(attr.Data).replaceAll('\x00', '');
                             break;
                         case mapi.MAPITypes.MAPIBodyHTML:
-                            tnef.BodyHTML = attr.Data
+                            tnef.BodyHTML = convertString.bytesToString(attr.Data).replaceAll('\x00', '');
                             break;
                         case mapi.MAPITypes.MAPIBodyPreview:
-                            tnef.BodyPreview = attr.Data
+                            tnef.BodyPreview = convertString.bytesToString(attr.Data).replaceAll('\x00', '');
                             break;
                         case mapi.MAPITypes.MAPIRtfCompressed:
-                            tnef.RtfCompressed = attr.Data
+                            tnef.RtfCompressed = attr.Data;
+                            break;
+                        case mapi.MAPITypes.MAPIPROPS:
+                            tnef.MAPIPROPS = tnef.MAPIPROPS || [];
+                            tnef.MAPIPROPS.push(convertString.bytesToString(attr.Data).replaceAll('\x00', ''));
+                            break;
+                        default:
+                            if (attr.Data.length && attr.Data.some(itm => itm)) {
+                                let attName = Object.entries(mapi.MAPITypes).find(itm => itm[1] === attr.Name);
+                                attName = attName && attName[0] || 'mapi_0x' + attr.Name.toString(16);
+                                let attValue = attr.TypeSize > 0 && attr.TypeSize < 8 ?
+                                    utils.byteArrayToInt(attr.Data) :
+                                    convertString.bytesToString(attr.Data).replaceAll('\x00', '');
+                                tnef[attName] = {data: attr.Data, value: attValue};
+                            }
                     }
                 }
             }
+        } else if (obj.Name === Attribute.TNEFVERSION) {
+            tnef.TNEFVERSION = obj.Data;
+        } else if (obj.Name === Attribute.OEMCODEPAGE) {
+            tnef.OEMCODEPAGE = obj.Data;
+        } else if (obj.Name === Attribute.MESSAGECLASS) {
+            tnef.MESSAGECLASS = convertString.bytesToString(obj.Data).replaceAll('\x00', '');
+        }
+        else if(obj.Data.length && obj.Data.some(itm => itm)) {
+            let attName = Object.entries(Attribute).find(itm => itm[1] === obj.Name);
+            attName = attName && attName[0] || '0x' + obj.Name.toString(16);
+            tnef[attName] = {data: obj.Data, value: convertString.bytesToString(obj.Data).replaceAll('\x00', '')};
         }
     }
 
     // return the final TNEF object
-    return tnef
+    return tnef;
 })
 
 let decodeTNEFObject = ((data) => {

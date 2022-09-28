@@ -71,7 +71,7 @@ let decodeMapi = ((data) => {
             offset += (-length & 3)
         }
 
-        attrs.push({ Type: attrType, Name: attrName, Data: attrData[0], GUID: guid })
+        attrs.push({ Type: attrType, TypeSize: getTypeSize(attrType), Name: attrName, Data: attrData[0], GUID: guid })
     }
 
     return attrs
@@ -330,7 +330,7 @@ const MAPITypes = {
     MAPIOriginatingMtaCertificate: 0x0E25,
     MAPIProofOfSubmission: 0x0E26,
     MAPIEntryID: 0x0FFF,
-    MAPIObjectType: 0x0FFE,
+    MAPIObjectType: 0x0FFE,     //7=MAPI_ATTACH, https://github.com/libyal/libfmapi/blob/main/documentation/MAPI%20definitions.asciidoc#object_type
     MAPIIcon: 0x0FFD,
     MAPIMiniIcon: 0x0FFC,
     MAPIStoreEntryID: 0x0FFB,
@@ -409,7 +409,7 @@ const MAPITypes = {
     MAPIAttachEncoding: 0x3702,
     MAPIAttachExtension: 0x3703,
     MAPIAttachFilename: 0x3704,
-    MAPIAttachMethod: 0x3705,
+    MAPIAttachMethod: 0x3705,           //ATTACH_EMBEDDED_MSG=5, https://github.com/libyal/libfmapi/blob/main/documentation/MAPI%20definitions.asciidoc#attachment_method_definitions
     MAPIAttachLongFilename: 0x3707,
     MAPIAttachPathname: 0x3708,
     MAPIAttachRendering: 0x3709,
@@ -553,7 +553,18 @@ const MAPITypes = {
     MAPIInitialDetailsPane: 0x3F08,
     MAPIBodyPreview: 0x3FD9,
     MAPIIdSecureMin: 0x67F0,
-    MAPIIdSecureMax: 0x67FF
+    MAPIIdSecureMax: 0x67FF,
+    PR_INTERNET_CPID: 0x3FDE,       //PidTagInternetCodepage
+    PR_MSG_EDITOR_FORMAT: 0x5909,   //[DONTKNOW, PLAINTEXT, HTML, RTF]
+    PR_EXCEPTION_STARTTIME: 0x7FFB,
+    PR_EXCEPTION_ENDTIME: 0x7FFC,
+    PR_ATTACHMENT_HIDDEN: 0x7FFE,
+    PR_MESSAGE_LOCALE_ID: 0x3ff1,
+    PR_MESSAGE_CODEPAGE: 0x3ffd,
+    PR_INTERNET_MESSAGE_ID: 0x1035,
+    PR_ICON_INDEX: 0x1080,
+    PR_INET_MAIL_OVERRIDE_FORMAT: 0x5902,
+    MAPIPROPS: 0x8000
 }
 
 module.exports = {
