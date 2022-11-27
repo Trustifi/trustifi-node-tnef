@@ -1,6 +1,6 @@
 {
   "name": "node-tnef",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "TNEF Parser using NodeJS",
   "main": "src/parse.js",
   "repository": {
@@ -13,8 +13,8 @@
     "url": "https://github.com/gatewayapps/node-tnef/issues"
   },
   "engines": {
-    "node": "16.13.2",
-    "npm": "8.5.5"
+    "node": "18.12.1",
+    "npm": "8.19.2"
   },
   "homepage": "https://github.com/gatewayapps/node-tnef#readme",
   "dependencies": {
@@ -22,6 +22,6 @@
     "convert-string": "^0.1.0"
   },
   "devDependencies": {
-    "@types/node": "^16.11.7"
+    "@types/node": "^18.11.9"
   }
 }
