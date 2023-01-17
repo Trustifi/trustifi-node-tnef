@@ -100,12 +100,12 @@ let addAttachmentAttr = ((obj, attachment) => {
                             attachment.Ext = convertString.bytesToString(att.Data).replaceAll('\x00', '')
                             break;
                         case mapi.MAPITypes.MAPIAttachDataObj:
-                            attachment.Content = att.Data;
-
-                            attachment.ContentMAPIAttributes = {};
-                            let attributes2 = mapi.decodeMapi(att.Data);
-                            for (let attr2 of attributes2.filter(itm => itm.Type > 1)) {
-                                getUnknownAttributeInfo(attachment.ContentMAPIAttributes, attr2);
+                            let signature = utils.processBytesToInteger(att.Data, 0, 4);
+                            if (signature === tnefSignature) {
+                                attachment.Content = att.Data.slice(4)
+                                attachment.Embed = Decode(att.Data)
+                            } else {
+                                attachment.Content = att.Data
                             }
                             break;
                         default:

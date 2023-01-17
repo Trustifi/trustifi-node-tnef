@@ -79,7 +79,6 @@ let decodeMapi = ((data) => {
 
 let getTypeSize = attrType => {
     switch (attrType) {
-        case szmapiUnspecified:
         case szmapiNull:
             return 0;
         case szmapiShort:
@@ -101,6 +100,7 @@ let getTypeSize = attrType => {
         case szmapiUnicodeString:
         case szmapiObject:
         case szmapiBinary:
+        case szmapiUnspecified:
             return -1
     }
     return 0
