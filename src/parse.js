@@ -53,6 +53,16 @@ function parseBuffer(data) {
     return Decode(arr)
 }
 
+function getUnknownAttributeInfo(container, att) {
+    let attName = Object.entries(mapi.MAPITypes).find(itm => itm[1] === att.Name);
+    attName = attName && attName[0] || 'mapi_0x' + att.Name.toString(16);
+    let attValue = att.TypeSize > 0 && att.TypeSize < 8 ?
+        utils.byteArrayToInt(att.Data) :
+        convertString.bytesToString(att.Data).replaceAll('\x00', '');
+
+    container[attName] = {type: '0x'+att.Type.toString(16), typeSize: att.TypeSize, data: att.Data, value: attValue};
+}
+
 // right now, adds just the attachment title and data
 let addAttachmentAttr = ((obj, attachment) => {
     switch (obj.Name) {
@@ -91,15 +101,16 @@ let addAttachmentAttr = ((obj, attachment) => {
                             break;
                         case mapi.MAPITypes.MAPIAttachDataObj:
                             attachment.Content = att.Data;
+
+                            attachment.ContentMAPIAttributes = {};
+                            let attributes2 = mapi.decodeMapi(att.Data);
+                            for (let attr2 of attributes2.filter(itm => itm.Type > 1)) {
+                                getUnknownAttributeInfo(attachment.ContentMAPIAttributes, attr2);
+                            }
                             break;
                         default:
                             if (att.Data.length && att.Data.some(itm => itm)) {
-                                let attName = Object.entries(mapi.MAPITypes).find(itm => itm[1] === att.Name);
-                                attName = attName && attName[0] || 'mapi_0x' + att.Name.toString(16);
-                                let attValue = att.TypeSize > 0 && att.TypeSize < 8 ?
-                                    utils.byteArrayToInt(att.Data) :
-                                    convertString.bytesToString(att.Data).replaceAll('\x00', '');
-                                attachment[attName] = {data: att.Data, value: attValue};
+                                getUnknownAttributeInfo(attachment, att);
                             }
                     }
                 })
@@ -177,12 +188,7 @@ let Decode = ((data) => {
                             break;
                         default:
                             if (attr.Data.length && attr.Data.some(itm => itm)) {
-                                let attName = Object.entries(mapi.MAPITypes).find(itm => itm[1] === attr.Name);
-                                attName = attName && attName[0] || 'mapi_0x' + attr.Name.toString(16);
-                                let attValue = attr.TypeSize > 0 && attr.TypeSize < 8 ?
-                                    utils.byteArrayToInt(attr.Data) :
-                                    convertString.bytesToString(attr.Data).replaceAll('\x00', '');
-                                tnef[attName] = {data: attr.Data, value: attValue};
+                                getUnknownAttributeInfo(tnef, attr);
                             }
                     }
                 }

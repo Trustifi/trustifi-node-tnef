@@ -51,7 +51,7 @@ let decodeMapi = ((data) => {
             offset += 4
         }
 
-        if (valueCount > 1024 && valueCount > data.length) {
+        if (valueCount > 1024 || valueCount > data.length) {
             return
         }
 
@@ -65,13 +65,13 @@ let decodeMapi = ((data) => {
             }
 
             // read the data in
-            attrData.push(utils.processBytes(data, offset, length))
+            attrData = attrData.concat(utils.processBytes(data, offset, length))
 
             offset += length
             offset += (-length & 3)
         }
 
-        attrs.push({ Type: attrType, TypeSize: getTypeSize(attrType), Name: attrName, Data: attrData[0], GUID: guid })
+        attrs.push({ Type: attrType, TypeSize: typeSize, Name: attrName, Data: attrData, GUID: guid })
     }
 
     return attrs
@@ -79,6 +79,9 @@ let decodeMapi = ((data) => {
 
 let getTypeSize = attrType => {
     switch (attrType) {
+        case szmapiUnspecified:
+        case szmapiNull:
+            return 0;
         case szmapiShort:
         case szmapiBoolean:
             return 2
