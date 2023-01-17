@@ -73,11 +73,18 @@ let addAttachmentAttr = ((obj, attachment) => {
                         case mapi.MAPITypes.MAPIAttachMimeTag:
                             attachment.ContentType = convertString.bytesToString(att.Data).replaceAll('\x00', '')
                             break;
+                        case mapi.MAPITypes.MAPIAttachTag:
+                            attachment.AttachTag = {data: att.Data, value: att.Data[8] === 1 ? 'TNEF' : att.Data[8] === 3 ? 'OLE' : att.Data[8] === 4 ? 'Mime' : 'Unknown'};
+                            if (att.Data[8] === 3) {
+                                if (att.Data[9]) attachment.AttachTag.value += att.Data[9];
+                                if (att.Data[10] === 1) attachment.AttachTag.value += ' storage';
+                            }
+                            break;
                         case mapi.MAPITypes.MAPIAttachLongFilename:
                             attachment.LongFilename = convertString.bytesToString(att.Data).replaceAll('\x00', '')
                             break;
                         case mapi.MAPITypes.MAPIDisplayName:
-                            attachment.LongFilename = convertString.bytesToString(att.Data).replaceAll('\x00', '')
+                            attachment.DisplayName = convertString.bytesToString(att.Data).replaceAll('\x00', '')
                             break;
                         case mapi.MAPITypes.MAPIAttachExtension:
                             attachment.Ext = convertString.bytesToString(att.Data).replaceAll('\x00', '')
