@@ -7,14 +7,17 @@
     "type": "git",
     "url": "git+https://github.com/gatewayapps/node-tnef.git"
   },
+  "scripts": {
+    "npm-install": "npm i"
+  },
   "author": "John Murphy <john@gatewayapps.com> (http://www.gatewayapps.com)",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/gatewayapps/node-tnef/issues"
   },
   "engines": {
-    "node": "16.13.2",
-    "npm": "8.5.5"
+    "node": "18.12.1",
+    "npm": "8.19.2"
   },
   "homepage": "https://github.com/gatewayapps/node-tnef#readme",
   "dependencies": {
@@ -22,6 +25,6 @@
     "convert-string": "^0.1.0"
   },
   "devDependencies": {
-    "@types/node": "^16.11.7"
+    "@types/node": "^18.11.9"
   }
 }
