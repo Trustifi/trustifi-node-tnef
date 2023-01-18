@@ -100,10 +100,10 @@ let addAttachmentAttr = ((obj, attachment) => {
                             attachment.Ext = convertString.bytesToString(att.Data).replaceAll('\x00', '')
                             break;
                         case mapi.MAPITypes.MAPIAttachDataObj:
-                            let signature = utils.processBytesToInteger(att.Data, 0, 4);
+                            let signature = utils.processBytesToInteger(att.Data.slice(16), 0, 4);
                             if (signature === tnefSignature) {
-                                attachment.Content = att.Data.slice(4)
-                                attachment.Embed = Decode(att.Data)
+                                attachment.Content = att.Data.slice(16)
+                                attachment.Embed = Decode(att.Data.slice(16))
                             } else {
                                 attachment.Content = att.Data
                             }
@@ -184,7 +184,13 @@ let Decode = ((data) => {
                             break;
                         case mapi.MAPITypes.MAPIPROPS:
                             tnef.MAPIPROPS = tnef.MAPIPROPS || [];
-                            tnef.MAPIPROPS.push(convertString.bytesToString(attr.Data).replaceAll('\x00', ''));
+                            let res = convertString.bytesToString(attr.Data).replaceAll('\x00', '').trim();
+                            if (res) {
+                                if (res.endsWith('=')) {
+                                    res = 'BASE64: ' + Buffer.from(res, 'base64').toString();
+                                }
+                                tnef.MAPIPROPS.push(res);
+                            }
                             break;
                         default:
                             if (attr.Data.length && attr.Data.some(itm => itm)) {
