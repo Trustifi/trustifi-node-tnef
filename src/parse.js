@@ -71,7 +71,7 @@ let addAttachmentAttr = ((obj, attachment) => {
                             attachment.Cid = convertString.bytesToString(att.Data).replaceAll('\x00', '')
                             break;
                         case mapi.MAPITypes.MAPIAttachMimeTag:
-                            attachment.ContentType = convertString.bytesToString(att.Data).replaceAll('\x00', '')
+                            attachment.ContentType = attachment.ContentType || convertString.bytesToString(att.Data).replaceAll('\x00', '')
                             break;
                         case mapi.MAPITypes.MAPIAttachLongFilename:
                             attachment.LongFilename = convertString.bytesToString(att.Data).replaceAll('\x00', '')
