@@ -65,13 +65,13 @@ let decodeMapi = ((data) => {
             }
 
             // read the data in
-            attrData = attrData.concat(utils.processBytes(data, offset, length))
+            attrData.push(utils.processBytes(data, offset, length))
 
             offset += length
             offset += (-length & 3)
         }
 
-        attrs.push({ Type: attrType, TypeSize: typeSize, Name: attrName, Data: attrData, GUID: guid })
+        attrs.push({ Type: attrType, TypeSize: typeSize, isMultiValued: valueCount>1, Name: attrName, Data: attrData[0], MultiValuedData: valueCount>1 && attrData, GUID: guid })
     }
 
     return attrs
