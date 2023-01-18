@@ -38,7 +38,7 @@ let processBytesToInteger = ((data, offset, length) => {
 })
 
 module.exports = {
-    byteArrayToInt: byteArrayToInt,
+    byteArrayToInt,
     processBytes,
     processBytesToInteger
 }

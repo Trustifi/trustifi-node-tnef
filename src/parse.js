@@ -41,7 +41,7 @@ const Attribute = {
     ATTATTACHTRANSPORTFILENAME: 0x9001, // Attachment Transport File Name
     ATTATTACHRENDDATA: 0x9002, // Attachment Rendering Data
     ATTMAPIPROPS: 0x9003, // MAPI Properties
-    ATTRECIPTABLE: 0x9004, // Receipients
+    ATTRECIPTABLE: 0x9004, // Recipients
     ATTATTACHMENT: 0x9005, // Attachment
     ATTTNEFVERSION: 0x9006, // TNEF Version
     ATTOEMCODEPAGE: 0x9007, // OEM Codepage
@@ -54,7 +54,7 @@ function parseBuffer(data) {
 }
 
 // right now, adds just the attachment title and data
-let addAttr = ((obj, attachment) => {
+let addAttachmentAttr = ((obj, attachment) => {
     switch (obj.Name) {
         case Attribute.ATTATTACHTITLE:
             attachment.Title = convertString.bytesToString(obj.Data).replaceAll('\x00', '').trim()
@@ -80,7 +80,12 @@ let addAttr = ((obj, attachment) => {
                             attachment.Ext = convertString.bytesToString(att.Data).replaceAll('\x00', '')
                             break;
                         case mapi.MAPITypes.MAPIAttachDataObj:
-                            attachment.Content = att.Data
+                            let signature = utils.processBytesToInteger(att.Data.slice(16), 0, 4);
+                            if (signature === tnefSignature) {
+                                attachment.Content = att.Data.slice(16);
+                            } else {
+                                attachment.Content = att.Data;
+                            }
                     }
                 })
             }
@@ -130,26 +135,26 @@ let Decode = ((data) => {
             tnef.Attachments.push(attachment)
         } else if (obj.Level === lvlAttachment) {
             // add the attachments
-            addAttr(obj, attachment)
+            addAttachmentAttr(obj, attachment)
         } else if (obj.Name === Attribute.ATTSUBJECT) {
             tnef.Subject = obj.Data;
         } else if (obj.Name === Attribute.ATTMAPIPROPS) {
-            let attributes = mapi.decodeMapi(obj.Data)
+            let attributes = mapi.decodeMapi(obj.Data);
             if (attributes) {
                 // get the body property if it exists
                 for (let attr of attributes) {
                     switch (attr.Name) {
                         case mapi.MAPITypes.MAPIBody:
-                            tnef.Body = attr.Data
+                            tnef.Body = attr.Data;
                             break;
                         case mapi.MAPITypes.MAPIBodyHTML:
-                            tnef.BodyHTML = attr.Data
+                            tnef.BodyHTML = attr.Data;
                             break;
                         case mapi.MAPITypes.MAPIBodyPreview:
-                            tnef.BodyPreview = attr.Data
+                            tnef.BodyPreview = attr.Data;
                             break;
                         case mapi.MAPITypes.MAPIRtfCompressed:
-                            tnef.RtfCompressed = attr.Data
+                            tnef.RtfCompressed = attr.Data;
                     }
                 }
             }
@@ -157,7 +162,7 @@ let Decode = ((data) => {
     }
 
     // return the final TNEF object
-    return tnef
+    return tnef;
 })
 
 let decodeTNEFObject = ((data) => {

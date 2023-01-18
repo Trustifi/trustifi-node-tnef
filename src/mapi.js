@@ -51,7 +51,7 @@ let decodeMapi = ((data) => {
             offset += 4
         }
 
-        if (valueCount > 1024 && valueCount > data.length) {
+        if (valueCount > 1024 || valueCount > data.length) {
             return
         }
 
@@ -71,7 +71,7 @@ let decodeMapi = ((data) => {
             offset += (-length & 3)
         }
 
-        attrs.push({ Type: attrType, Name: attrName, Data: attrData[0], GUID: guid })
+        attrs.push({ Type: attrType, TypeSize: typeSize, isMultiValued: valueCount>1, Name: attrName, Data: attrData[0], GUID: guid })
     }
 
     return attrs
@@ -553,7 +553,21 @@ const MAPITypes = {
     MAPIInitialDetailsPane: 0x3F08,
     MAPIBodyPreview: 0x3FD9,
     MAPIIdSecureMin: 0x67F0,
-    MAPIIdSecureMax: 0x67FF
+    MAPIIdSecureMax: 0x67FF,
+    PR_INTERNET_CPID: 0x3FDE,       //PidTagInternetCodepage
+    PR_MSG_EDITOR_FORMAT: 0x5909,   //[DONTKNOW, PLAINTEXT, HTML, RTF]
+    PR_EXCEPTION_STARTTIME: 0x7FFB,
+    PR_EXCEPTION_ENDTIME: 0x7FFC,
+    PR_ATTACHMENT_HIDDEN: 0x7FFE,
+    PR_MESSAGE_LOCALE_ID: 0x3ff1,
+    PR_MESSAGE_CODEPAGE: 0x3ffd,
+    PR_INTERNET_MESSAGE_ID: 0x1035,
+    PR_ICON_INDEX: 0x1080,
+    PR_INET_MAIL_OVERRIDE_FORMAT: 0x5902,
+    PR_SENDER_SIMPLE_DISP_NAME: 0x4030,
+    PR_SENT_REPRESENTING_SIMPLE_DISP_NAME: 0x4031,
+    PR_CREATOR_SIMPLE_DISP_NAME: 0x4038,
+    MAPIPROPS: 0x8000
 }
 
 module.exports = {
