@@ -83,6 +83,7 @@ let addAttachmentAttr = ((obj, attachment) => {
                             let signature = utils.processBytesToInteger(att.Data.slice(16), 0, 4);
                             if (signature === tnefSignature) {
                                 attachment.Content = att.Data.slice(16);
+                                attachment.ContentType = 'application/ms-tnef';
                             } else {
                                 attachment.Content = att.Data;
                             }
