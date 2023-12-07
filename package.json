@@ -1,6 +1,6 @@
 {
   "name": "node-tnef",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "TNEF Parser using NodeJS",
   "main": "src/parse.js",
   "repository": {

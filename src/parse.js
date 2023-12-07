@@ -163,10 +163,24 @@ let Decode = ((data) => {
                             break;
                         case mapi.MAPITypes.MAPIRtfCompressed:
                             tnef.RtfCompressed = attr.Data;
+                            break;
+                        case mapi.MAPITypes.MAPIMessageClass:
+                            tnef.MessageClass = convertString.bytesToString(attr.Data).replaceAll('\x00', '');
+                            break;
+                        /*default:
+                            if (attr.Data) {
+                                tnef.mapi = tnef.mapi || {};
+                                let name = Object.entries(mapi.MAPITypes).find(a => a[1] === attr.Name);
+                                tnef.mapi[name && name[0] || attr.Name] = convertString.bytesToString(attr.Data).replaceAll('\x00', '')
+                            }*/
                     }
                 }
             }
         }
+        /*else if (obj.Data) {
+            let name = Object.entries(Attribute).find(a => a[1] === obj.Name);
+            tnef[name && name[0] || obj.Name] = convertString.bytesToString(obj.Data).replaceAll('\x00', '')
+        }*/
     }
 
     // return the final TNEF object
