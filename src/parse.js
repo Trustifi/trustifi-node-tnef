@@ -57,7 +57,7 @@ function parseBuffer(data) {
 let addAttachmentAttr = ((obj, attachment) => {
     switch (obj.Name) {
         case Attribute.ATTATTACHTITLE:
-            attachment.Title = convertString.bytesToString(obj.Data).replaceAll('\x00', '').trim()
+            attachment.Title = convertString.bytesToString(obj.Data).replaceAll('\x00', '').trim();
             break;
         case Attribute.ATTATTACHDATA:
             attachment.Data = obj.Data
@@ -71,7 +71,7 @@ let addAttachmentAttr = ((obj, attachment) => {
                             attachment.Cid = convertString.bytesToString(att.Data).replaceAll('\x00', '')
                             break;
                         case mapi.MAPITypes.MAPIAttachMimeTag:
-                            attachment.ContentType = attachment.ContentType || convertString.bytesToString(att.Data).replaceAll('\x00', '')
+                            attachment.ContentType = attachment.ContentType || convertString.bytesToString(att.Data).replaceAll('\x00', '');
                             break;
                         case mapi.MAPITypes.MAPIAttachTag:
                             attachment.Tag = att.Data[8] === 1 ? 'TNEF' : att.Data[8] === 3 ? 'OLE' : att.Data[8] === 4 ? 'Mime' : 'Unknown';
@@ -167,19 +167,26 @@ let Decode = ((data) => {
                         case mapi.MAPITypes.MAPIMessageClass:
                             tnef.MessageClass = convertString.bytesToString(attr.Data).replaceAll('\x00', '');
                             break;
-                        /*default:
-                            if (attr.Data) {
-                                tnef.mapi = tnef.mapi || {};
+                        default:
+                            /*if (attr.Data) {      //DEBUG
                                 let name = Object.entries(mapi.MAPITypes).find(a => a[1] === attr.Name);
-                                tnef.mapi[name && name[0] || attr.Name] = convertString.bytesToString(attr.Data).replaceAll('\x00', '')
+                                let data = convertString.bytesToString(attr.Data).replaceAll('\x00', '').trim();
+                                if (data) {
+                                    tnef.mapi = tnef.mapi || {};
+                                    tnef.mapi[name && name[0] || attr.Name] = data;
+                                }
                             }*/
                     }
                 }
             }
         }
-        /*else if (obj.Data) {
+        /*else if (obj.Data) {      //DEBUG
             let name = Object.entries(Attribute).find(a => a[1] === obj.Name);
-            tnef[name && name[0] || obj.Name] = convertString.bytesToString(obj.Data).replaceAll('\x00', '')
+            let data = convertString.bytesToString(obj.Data).replaceAll('\x00', '').trim();
+            if (data) {
+                tnef.extra = tnef.extra || {};
+                tnef.extra[name && name[0] || obj.Name] = data;
+            }
         }*/
     }
 
