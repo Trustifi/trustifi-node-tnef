@@ -167,15 +167,21 @@ let Decode = ((data) => {
                         case mapi.MAPITypes.MAPIMessageClass:
                             tnef.MessageClass = convertString.bytesToString(attr.Data).replaceAll('\x00', '');
                             break;
-                        default:
-                            /*if (attr.Data) {      //DEBUG
-                                let name = Object.entries(mapi.MAPITypes).find(a => a[1] === attr.Name);
-                                let data = convertString.bytesToString(attr.Data).replaceAll('\x00', '').trim();
-                                if (data) {
-                                    tnef.mapi = tnef.mapi || {};
-                                    tnef.mapi[name && name[0] || attr.Name] = data;
-                                }
-                            }*/
+                        case mapi.MAPITypes.MAPITransportMessageHeaders:
+                            tnef.Headers = convertString.bytesToString(attr.Data).replaceAll('\x00', '');
+                            break;
+                        case mapi.MAPITypes.PR_INTERNET_MESSAGE_ID:
+                            tnef.MessageID = convertString.bytesToString(attr.Data).replaceAll('\x00', '');
+                            break;
+                        /*default:
+                          if (attr.Data) {      //DEBUG
+                            let name = Object.entries(mapi.MAPITypes).find(a => a[1] === attr.Name);
+                            let data = convertString.bytesToString(attr.Data).replaceAll('\x00', '').trim();
+                            if (data) {
+                                tnef.mapi = tnef.mapi || {};
+                                tnef.mapi[name && name[0] || attr.Name] = data;
+                            }
+                        }*/
                     }
                 }
             }

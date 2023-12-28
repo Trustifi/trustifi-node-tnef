@@ -1,6 +1,6 @@
 {
   "name": "node-tnef",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "TNEF Parser using NodeJS",
   "main": "src/parse.js",
   "repository": {
@@ -12,6 +12,9 @@
   "engines": {
     "node": "18.12.1",
     "npm": "8.19.2"
+  },
+  "scripts": {
+    "npm-install": "npm i"
   },
   "dependencies": {
     "bunyan": "^1.8.15",
